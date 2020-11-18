@@ -29,13 +29,15 @@ def process_js_manifest(package_json_path, allow_parent=True) -> Optional[Packag
         return None
 
     raw_licenses = data.get("licenses", [])
-    if raw_licenses:
-        raw_licenses = [l["type"] for l in raw_licenses]
+    if raw_licenses and isinstance(raw_licenses, dict):
+        raw_licenses = [l["type"] for l in raw_licenses]    
+    elif raw_licenses and isinstance(raw_licenses, str):
+        raw_licenses = [raw_licenses]
     else:
         package_json_license = data.get("license")
         if package_json_license:
             if isinstance(package_json_license, dict):
-                package_json_license = package_json_license["type"]
+                package_json_license = package_json_license.get("type", False) or package_json_license.get("name")
             raw_licenses = [package_json_license]
 
     pkg_info = PackageInfo(
